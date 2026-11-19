@@ -1,0 +1,31 @@
+name: sw_oto_klip
+description: SW Oto Klip - uzun yayinlarda otomatik klip bulucu
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.3.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  webview_flutter: ^4.10.0
+  webview_flutter_android: ^4.0.0
+  shared_preferences: ^2.3.0
+
+dev_dependencies:
+  flutter_launcher_icons: ^0.14.3
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/icon.png
+    - assets/analyzer.js
+
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: "assets/icon.png"
+  adaptive_icon_background: "#120000"
+  adaptive_icon_foreground: "assets/icon.png"
+  adaptive_icon_foreground_inset: 16
