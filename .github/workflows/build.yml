@@ -1,0 +1,68 @@
+name: SW Oto Klip APK
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Proje iskeleti olustur
+        run: |
+          flutter create --org com.sw --project-name sw_oto_klip --platforms android build_app
+          mkdir -p build_app/assets
+          cp icon.png build_app/assets/icon.png
+          cp analyzer.js build_app/assets/analyzer.js
+          cp main.dart build_app/lib/main.dart
+          cp pubspec.yaml build_app/pubspec.yaml
+          rm -rf build_app/test
+          rm -f build_app/analysis_options.yaml
+
+      - name: Android ayarlari
+        working-directory: build_app
+        run: |
+          M=android/app/src/main/AndroidManifest.xml
+          sed -i 's|android:label="[^"]*"|android:label="SW Oto Klip"|' $M
+          sed -i 's|<application|<uses-permission android:name="android.permission.INTERNET"/>\n    <application|' $M
+          cat $M
+
+      - name: Paketler ve ikon
+        working-directory: build_app
+        run: |
+          flutter pub get
+          dart run flutter_launcher_icons
+
+      - name: APK derle
+        working-directory: build_app
+        run: |
+          flutter build apk --release
+          cp build/app/outputs/flutter-apk/app-release.apk ../SW-Oto-Klip.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SW-Oto-Klip-APK
+          path: SW-Oto-Klip.apk
+
+      - name: Release olustur
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.${{ github.run_number }}
+          name: SW Oto Klip v1.0.${{ github.run_number }}
+          files: SW-Oto-Klip.apk
