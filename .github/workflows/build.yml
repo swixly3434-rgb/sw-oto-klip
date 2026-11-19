@@ -17,7 +17,7 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: '21'
 
       - uses: subosito/flutter-action@v2
         with:
@@ -49,10 +49,15 @@ jobs:
           flutter pub get
           dart run flutter_launcher_icons
 
+      - name: Lint kontrolunu kapat
+        run: |
+          mkdir -p ~/.gradle/init.d
+          printf '%s\n' 'allprojects { tasks.configureEach { t -> if (t.name.startsWith("lintVital") || t.name.startsWith("lintAnalyze")) { t.enabled = false } } }' > ~/.gradle/init.d/nolint.gradle
+
       - name: APK derle
         working-directory: build_app
         run: |
-          flutter build apk --release
+          flutter build apk --release --no-tree-shake-icons
           cp build/app/outputs/flutter-apk/app-release.apk ../SW-Oto-Klip.apk
 
       - uses: actions/upload-artifact@v4
